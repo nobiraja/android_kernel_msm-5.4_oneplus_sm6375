@@ -2610,6 +2610,7 @@ static void sdhci_msm_set_timeout(struct sdhci_host *host, struct mmc_command *c
 		host->data_timeout = 22LL * NSEC_PER_SEC;
 }
 
+
 static void sdhci_msm_registers_save(struct sdhci_host *host)
 {
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
@@ -3569,12 +3570,15 @@ static const struct sdhci_ops sdhci_msm_ops = {
 	.write_w = sdhci_msm_writew,
 	.write_b = sdhci_msm_writeb,
 	.set_timeout = sdhci_msm_set_timeout,
+<<<<<<< HEAD
 	.irq	= sdhci_msm_cqe_irq,
 #if defined(CONFIG_SDC_QTI)
 	.get_current_limit = sdhci_msm_get_current_limit,
 	.notify_load = sdhci_msm_notify_load,
 #endif
 	.hw_reset = sdhci_msm_hw_reset,
+=======
+>>>>>>> v5.4.148
 };
 
 static const struct sdhci_pltfm_data sdhci_msm_pdata = {

@@ -1677,9 +1677,13 @@ static int __dwc3_gadget_ep_queue(struct dwc3_ep *dep, struct dwc3_request *req)
 {
 	struct dwc3		*dwc = dep->dwc;
 
+
 	if (!dep->endpoint.desc || !dwc->pullups_connected ||
 						!dwc->connected) {
 		dev_err_ratelimited(dwc->dev, "%s: can't queue to disabled endpoint\n",
+
+	if (!dep->endpoint.desc || !dwc->pullups_connected || !dwc->connected) {
+		dev_err(dwc->dev, "%s: can't queue to disabled endpoint\n",
 				dep->name);
 		return -ESHUTDOWN;
 	}
@@ -2279,17 +2283,26 @@ static int dwc3_gadget_set_selfpowered(struct usb_gadget *g,
 	return 0;
 }
 
+<<<<<<< HEAD
 static void dwc3_stop_active_transfers(struct dwc3 *dwc, bool block_db)
 {
 	u32 epnum;
 
 	for (epnum = 2; epnum < DWC3_ENDPOINTS_NUM; epnum++) {
+=======
+static void dwc3_stop_active_transfers(struct dwc3 *dwc)
+{
+	u32 epnum;
+
+	for (epnum = 2; epnum < dwc->num_eps; epnum++) {
+>>>>>>> v5.4.148
 		struct dwc3_ep *dep;
 
 		dep = dwc->eps[epnum];
 		if (!dep)
 			continue;
 
+<<<<<<< HEAD
 		if (!(dep->flags & DWC3_EP_ENABLED))
 			continue;
 
@@ -2299,10 +2312,13 @@ static void dwc3_stop_active_transfers(struct dwc3 *dwc, bool block_db)
 				DWC3_CONTROLLER_NOTIFY_CLEAR_DB, 0);
 		}
 
+=======
+>>>>>>> v5.4.148
 		dwc3_remove_requests(dwc, dep);
 	}
 }
 
+<<<<<<< HEAD
 /**
  * dwc3_device_core_soft_reset - Issues device core soft reset
  * @dwc: pointer to our context structure
@@ -2343,6 +2359,8 @@ done:
 
 #define MIN_RUN_STOP_DELAY_MS 50
 
+=======
+>>>>>>> v5.4.148
 static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
 {
 	u32			reg, reg1;
@@ -2436,6 +2454,7 @@ static int dwc3_gadget_run_stop(struct dwc3 *dwc, int is_on, int suspend)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int dwc3_gadget_run_stop_util(struct dwc3 *dwc)
 {
 	int ret = 0;
@@ -2512,6 +2531,9 @@ static int dwc3_gadget_vbus_draw(struct usb_gadget *g, unsigned int mA)
 	return 0;
 }
 
+=======
+static void dwc3_gadget_disable_irq(struct dwc3 *dwc);
+>>>>>>> v5.4.148
 static void __dwc3_gadget_stop(struct dwc3 *dwc);
 static int __dwc3_gadget_start(struct dwc3 *dwc);
 
@@ -2563,10 +2585,16 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 		ret = wait_for_completion_timeout(&dwc->ep0_in_setup,
 				msecs_to_jiffies(DWC3_PULL_UP_TIMEOUT));
 		if (ret == 0)
+<<<<<<< HEAD
 			dev_err(dwc->dev, "timed out waiting for SETUP phase\n");
 	}
 
 #ifndef OPLUS_FEATURE_CHG_BASIC
+=======
+			dev_warn(dwc->dev, "timed out waiting for SETUP phase\n");
+	}
+
+>>>>>>> v5.4.148
 	/*
 	 * Avoid issuing a runtime resume if the device is already in the
 	 * suspended state during gadget disconnect.  DWC3 gadget was already
@@ -2608,7 +2636,11 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 		 * command for any active transfers" before clearing the RunStop
 		 * bit.
 		 */
+<<<<<<< HEAD
 		dwc3_stop_active_transfers(dwc, false);
+=======
+		dwc3_stop_active_transfers(dwc);
+>>>>>>> v5.4.148
 		__dwc3_gadget_stop(dwc);
 
 		/*
@@ -2632,6 +2664,11 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
 	spin_unlock_irqrestore(&dwc->lock, flags);
 	enable_irq(dwc->irq_gadget);
+<<<<<<< HEAD
+=======
+
+	pm_runtime_put(dwc->dev);
+>>>>>>> v5.4.148
 
 	pm_runtime_put(dwc->dev);
 #endif
@@ -2908,6 +2945,7 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 	}
 
 	dwc->gadget_driver	= driver;
+<<<<<<< HEAD
 	dwc->is_remote_wakeup_enabled = false;
 
 	/*
@@ -2916,6 +2954,8 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 	 * device-specific initialization until device mode is activated.
 	 * In that case dwc3_gadget_restart() will handle it.
 	 */
+=======
+>>>>>>> v5.4.148
 	spin_unlock_irqrestore(&dwc->lock, flags);
 
 	return 0;
@@ -3799,6 +3839,14 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
 	usb_gadget_vbus_draw(&dwc->gadget, 100);
 
 	dwc3_reset_gadget(dwc);
+	/*
+	 * In the Synopsis DesignWare Cores USB3 Databook Rev. 3.30a
+	 * Section 4.1.2 Table 4-2, it states that during a USB reset, the SW
+	 * needs to ensure that it sends "a DEPENDXFER command for any active
+	 * transfers."
+	 */
+	dwc3_stop_active_transfers(dwc);
+	dwc->connected = true;
 
 #ifndef OPLUS_FEATURE_CHG_BASIC
 	/*

@@ -317,12 +317,12 @@ static enum oom_constraint constrained_alloc(struct oom_control *oc)
 static int oom_evaluate_task(struct task_struct *task, void *arg)
 {
 	struct oom_control *oc = arg;
-	long points;
+	long points; 
+      HEAD
 #ifdef CONFIG_PRIORITIZE_OOM_TASKS
 	struct task_struct *p;
 	short adj;
 #endif
-
 	if (oom_unkillable_task(task))
 		goto next;
 
